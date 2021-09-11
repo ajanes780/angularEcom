@@ -19,13 +19,30 @@ router.post('/', async (req: Request, res: Response) => {
 
   try {
     let category = new Category({ name, icon, color })
-    const result = await category.save()
+    const result = await Category.save()
     if (result) {
       res.status(201).json({ result, success: true })
     }
   } catch (error) {
     res.status(404).json({
       message: 'The category could not be created',
+      success: false,
+      error: error,
+    })
+  }
+})
+
+router.delete('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params
+  console.log(`id`, id)
+  try {
+    const result = await Category.findByIdAndRemove(id)
+    if (result) {
+      res.status(200).json({ message: 'Category has been removed', success: true })
+    }
+  } catch (error) {
+    res.status(404).json({
+      message: 'The category could not be deleted please try again later',
       success: false,
       error: error,
     })
