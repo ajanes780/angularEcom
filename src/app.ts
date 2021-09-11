@@ -28,16 +28,19 @@ app.use(`${api}/users`, usersRouter)
 
 
 //  DB connection 
+interface Error {
+  message: string;
+}
 mongoose
   .connect(
     `mongodb+srv://${process.env.MONGOUSER}:${process.env.MONGOPASS}@angularstore.irh8h.mongodb.net/angularStore?retryWrites=true&w=majority`
   )
   .then(() => {
-    console.log(colors.rainbow('MongoDB is now connected'))
+    console.log(colors.rainbow("MongoDB is now connected"));
   })
-  .catch((e) => {
-    console.log(colors.red(` There has been a database error ${e}`))
-  })
+  .catch((e: Error) => {
+    console.log(colors.red(` There has been a database error ${e.message}`));
+  });
   
 app.listen(3000, () => {
   console.log(colors.random('Server is running on port 3000'))

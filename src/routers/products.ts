@@ -8,8 +8,13 @@ const colors = require("colors/safe");
 
 // get all products
 router.get(`/`, async (req: Request, res: Response) => {
+  let filter = {};
+  if (req.query.categories && typeof req.query.categories === "string") {
+    filter = { category: req.query.categories.split(",") };
+  }
+
   try {
-    const productList = await Product.find().select("name image").populate("category");
+    const productList = await Product.find(filter);
     res.send(productList);
   } catch (error) {
     console.log(colors.red(error));
@@ -78,7 +83,7 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     // validate the required fields
     const result = await Category.findById(category);
-    if (!result) return res.status(400).send("Invalid category ");
+    if (!result) return res.status(400).send("Invalid category");
 
     const product = new Product({
       name,
