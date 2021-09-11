@@ -3,4 +3,4 @@
 ## A MEAN Stack application 
 
 - a e-commerce application build using typescript through out based on the MEAN stack
-- testing with Jest and Cypress
+- additional testing with Jest, Jasmine and Cypress
