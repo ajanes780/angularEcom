@@ -6,11 +6,13 @@ const mongoose = require('mongoose')
 const colors = require('colors/safe')
 const app = express()
 const Product = require('./models/product')
+const cors = require('cors')
+app.use(cors())
+app.options('*', cors())
 
 // middleware
 app.use(express.json())
 app.use(morgan('tiny'))
-
 // routers
 const productRouter = require('./routers/products')
 const categoryRouter = require('./routers/category')

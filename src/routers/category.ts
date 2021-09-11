@@ -14,6 +14,22 @@ router.get(`/`, async (eq: Request, res: Response) => {
   }
 })
 
-router.post('/', async (req: Request, res: Response) => {})
+router.post('/', async (req: Request, res: Response) => {
+  const { name, icon, color } = req.body
+
+  try {
+    let category = new Category({ name, icon, color })
+    const result = await category.save()
+    if (result) {
+      res.status(201).json({ result, success: true })
+    }
+  } catch (error) {
+    res.status(404).json({
+      message: 'The category could not be created',
+      success: false,
+      error: error,
+    })
+  }
+})
 
 module.exports = router
