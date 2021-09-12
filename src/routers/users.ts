@@ -128,7 +128,7 @@ router.post("/login", async (req: Request, res: Response) => {
         expiresIn: "1d",
       }
     );
-    return res.status(200).send({ userEmail: user.email, userName: user.name, token });
+    return res.status(200).send({ userEmail: user.email, userName: user.name, token, success: true });
   } else {
     return res.status(200).send("Not authorized, please try a different email and password");
   }

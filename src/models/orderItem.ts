@@ -6,4 +6,4 @@ const orderItem = mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
 });
 
-module.exports = mongoose.model("Orders", orderItem);
+module.exports = mongoose.model("OrderItem", orderItem);

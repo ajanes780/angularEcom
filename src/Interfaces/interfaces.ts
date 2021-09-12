@@ -10,3 +10,9 @@ export class HttpException extends Error {
     return { status: `${this.status}`, message: `${this.message}` };
   }
 }
+
+
+export class OrderItemClass {
+  quantity: string;
+  product: string;
+}
