@@ -182,6 +182,7 @@ router.get("/get/count", async (req: Request, res: Response) => {
   }
 });
 
+
 router.delete("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
   console.log(`id`, id)
