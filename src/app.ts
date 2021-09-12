@@ -7,27 +7,37 @@ const colors = require('colors/safe')
 const app = express()
 const Product = require('./models/product')
 const cors = require('cors')
-app.use(cors())
-app.options('*', cors())
+const authJwt = require("./helpers/jwt");
+import { Request, Response, NextFunction } from "express";
+import { HttpException } from "./Interfaces/interfaces";
+app.use(cors());
+app.options("*", cors());
 
 // middleware
-app.use(express.json())
-app.use(morgan('tiny'))
+app.use(express.json());
+app.use(morgan("tiny"));
+app.use(authJwt());
+app.use((err: HttpException, req: Request, res: Response, next: NextFunction) => {
+  if (err) {
+    const error = new HttpException(err.status, `${err.message}`);
+    console.log(colors.red(error.errorMessage()));
+    res.send(error.errorMessage());
+  }
+});
+
 // routers
-const productRouter = require('./routers/products')
-const categoryRouter = require('./routers/category')
-const ordersRouter = require('./routers/orders')
-const usersRouter = require('./routers/users')
+const productRouter = require("./routers/products");
+const categoryRouter = require("./routers/category");
+const ordersRouter = require("./routers/orders");
+const usersRouter = require("./routers/users");
 
-const api = process.env.API_URL
-app.use(`${api}/products`, productRouter)
-app.use(`${api}/category`, categoryRouter)
-app.use(`${api}/orders`, ordersRouter)
-app.use(`${api}/users`, usersRouter)
+const api = process.env.API_URL;
+app.use(`${api}/products`, productRouter);
+app.use(`${api}/category`, categoryRouter);
+app.use(`${api}/orders`, ordersRouter);
+app.use(`${api}/users`, usersRouter);
 
-
-
-//  DB connection 
+//  DB connection
 interface Error {
   message: string;
 }
@@ -38,7 +48,7 @@ mongoose
   .then(() => {
     console.log(colors.rainbow("MongoDB is now connected"));
   })
-  .catch((e: Error) => {
+  .catch((e: HttpException) => {
     console.log(colors.red(` There has been a database error ${e.message}`));
   });
   
