@@ -8,8 +8,8 @@ const app = express()
 const Product = require('./models/product')
 const cors = require('cors')
 const authJwt = require("./helpers/jwt");
-import { Request, Response, NextFunction } from "express";
-import { HttpException } from "./Interfaces/interfaces";
+const errorHandler = require("./helpers/errorHandler");
+
 app.use(cors());
 app.options("*", cors());
 
@@ -17,13 +17,8 @@ app.options("*", cors());
 app.use(express.json());
 app.use(morgan("tiny"));
 app.use(authJwt());
-app.use((err: HttpException, req: Request, res: Response, next: NextFunction) => {
-  if (err) {
-    const error = new HttpException(err.status, `${err.message}`);
-    console.log(colors.red(error.errorMessage()));
-    res.send(error.errorMessage());
-  }
-});
+app.use(errorHandler);
+
 
 // routers
 const productRouter = require("./routers/products");

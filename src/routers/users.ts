@@ -132,5 +132,39 @@ router.post("/login", async (req: Request, res: Response) => {
 });
 
 
+router.post("/register", async (req: Request, res: Response) => {
+  const { name, email, password, phone, isAdmin, street, apartment, city, postalCode, country } = req.body;
+  const checkEmail = await User.find({ email });
+
+  if (checkEmail.length) return res.send("That user already exists");
+
+  try {
+    let newUser = new User({
+      name,
+      email,
+      passwordHash: bcrypt.hashSync(password, 8),
+      phone,
+      isAdmin,
+      street,
+      apartment,
+      city,
+      postalCode,
+      country,
+    });
+    const result = await newUser.save();
+
+    if (result) {
+      res.status(201).json({ result, success: true });
+    }
+  } catch (error) {
+    res.status(404).json({
+      message: "The user could not be created",
+      success: false,
+      error: error,
+    });
+  }
+});
+
+
 
 module.exports = router
