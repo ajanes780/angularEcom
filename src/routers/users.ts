@@ -5,7 +5,7 @@ import { Request, Response } from 'express'
 const colors = require('colors/safe')
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
-
+const jwt = require("jsonwebtoken");
 // get all of users
 router.get(`/`, async (req: Request, res: Response) => {
   try {
@@ -108,5 +108,29 @@ router.put("/:id", async (req: Request, res: Response) => {
     });
   }
 });
+
+router.post("/login", async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) return res.status(400).send(" The user was not found");
+
+  if (user && bcrypt.compareSync(password, user.passwordHash)) {
+    const token = jwt.sign(
+      {
+        userId: user.id,
+      },
+      process.env.JWT,
+      {
+        expiresIn: "1d",
+      }
+    );
+    return res.status(200).send({ userEmail: user.email, userName: user.name, token });
+  } else {
+    return res.status(200).send("Not authorized, please try a different email and password");
+  }
+});
+
+
 
 module.exports = router
