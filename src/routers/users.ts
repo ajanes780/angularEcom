@@ -6,6 +6,8 @@ const colors = require('colors/safe')
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+
+
 // get all of users
 router.get(`/`, async (req: Request, res: Response) => {
   try {
@@ -119,6 +121,7 @@ router.post("/login", async (req: Request, res: Response) => {
     const token = jwt.sign(
       {
         userId: user.id,
+        isAdmin: user.isAdmin,
       },
       process.env.JWT,
       {
@@ -162,6 +165,37 @@ router.post("/register", async (req: Request, res: Response) => {
       success: false,
       error: error,
     });
+  }
+});
+
+
+
+
+router.get("/get/count", async (req: Request, res: Response) => {
+  try {
+    const userCount = await User.countDocuments();
+    res.status(201).json({ userCount, success: true });
+    console.log(colors.inverse(` Drum roll please.... your have ${userCount} products!`));
+  } catch (error) {
+    res.status(500).json({ message: "I could not get the product count", success: false, error });
+    console.log(colors.red(error));
+  }
+});
+
+router.delete("/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  console.log(`id`, id)
+  if (!mongoose.isValidObjectId(id)) {
+    res.status(400).send("Invalid user id");
+  }
+
+  try {
+    const deletedUser = await User.findByIdAndRemove(id);
+    res.status(201).json({ message: "The user  was deleted", success: true });
+    console.log(colors.inverse(`Success the user was deleted`, deletedUser));
+  } catch (error) {
+    res.status(500).json({ message: "The user was not deleted", success: false, error });
+    console.log(colors.red(error));
   }
 });
 

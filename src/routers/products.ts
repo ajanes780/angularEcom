@@ -167,7 +167,7 @@ router.put("/:id", async (req: Request, res: Response) => {
 
 router.delete("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  if (mongoose.isValidObjectId(id)) {
+  if (!mongoose.isValidObjectId(id)) {
     res.status(400).send("Invalid product id");
   }
 
