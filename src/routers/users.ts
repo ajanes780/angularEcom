@@ -6,10 +6,10 @@ const colors = require('colors/safe')
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-
+const admin = require("../helpers/admin");
 
 // get all of users
-router.get(`/`, async (req: Request, res: Response) => {
+router.get(`/`, admin, async (req: Request, res: Response) => {
   try {
     const usersList = await User.find().select("-passwordHash");
     res.send(usersList);
@@ -19,7 +19,7 @@ router.get(`/`, async (req: Request, res: Response) => {
   }
 });
 //  get on single user
-router.get(`/:id`, async (req: Request, res: Response) => {
+router.get(`/:id`, admin, async (req: Request, res: Response) => {
   const { id } = req.params;
   if (!mongoose.isValidObjectId(id)) {
     res.status(400).send("Invalid user id");
@@ -35,7 +35,7 @@ router.get(`/:id`, async (req: Request, res: Response) => {
 });
 
 // add a new user
-router.post("/", async (req: Request, res: Response) => {
+router.post("/", admin, async (req: Request, res: Response) => {
   const { name, email, password, phone, isAdmin, street, apartment, city, postalCode, country } = req.body;
   const checkEmail = await User.find({ email });
 
@@ -68,8 +68,8 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-// update user
-router.put("/:id", async (req: Request, res: Response) => {
+// update user - have to make sure only admin or the user can update themselves
+router.put("/:id", admin, async (req: Request, res: Response) => {
   const { name, email, password, phone, isAdmin, street, apartment, city, postalCode, country } = req.body;
   const { id } = req.params;
   if (!mongoose.isValidObjectId(id)) {
@@ -134,7 +134,6 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
-
 router.post("/register", async (req: Request, res: Response) => {
   const { name, email, password, phone, isAdmin, street, apartment, city, postalCode, country } = req.body;
   const checkEmail = await User.find({ email });
@@ -168,24 +167,20 @@ router.post("/register", async (req: Request, res: Response) => {
   }
 });
 
-
-
-
-router.get("/get/count", async (req: Request, res: Response) => {
+router.get("/get/count", admin, async (req: Request, res: Response) => {
   try {
     const userCount = await User.countDocuments();
     res.status(201).json({ userCount, success: true });
-    console.log(colors.inverse(` Drum roll please.... your have ${userCount} products!`));
+    console.log(colors.inverse(` Drum roll please.... your have ${userCount} users!`));
   } catch (error) {
-    res.status(500).json({ message: "I could not get the product count", success: false, error });
+    res.status(500).json({ message: "I could not get the user count", success: false, error });
     console.log(colors.red(error));
   }
 });
 
-
-router.delete("/:id", async (req: Request, res: Response) => {
+router.delete("/:id", admin, async (req: Request, res: Response) => {
   const { id } = req.params;
-  console.log(`id`, id)
+  console.log(`id`, id);
   if (!mongoose.isValidObjectId(id)) {
     res.status(400).send("Invalid user id");
   }

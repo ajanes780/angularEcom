@@ -7,10 +7,23 @@ const admin = require("../helpers/admin");
 import { Request, Response } from "express";
 import { OrderItemClass } from "../Interfaces/interfaces";
 
-router.get(`/`, admin, async (eq: Request, res: Response) => {
+router.get(`/`, admin, async (req: Request, res: Response) => {
   try {
-    const ordersList = await Orders.find();
+    //  using populate to create a "join" and fill the data from the other table/doc  also sort new to old
+    const ordersList = await Orders.find().populate("user", "name street").sort({ dateOrdered: -1 });
     res.send(ordersList);
+  } catch (error) {
+    console.log(colors.red(error));
+    res.status(500).json({ success: false, message: error });
+  }
+});
+router.get(`/:id`, admin, async (req: Request, res: Response) => {
+  try {
+    //  using populate to create a " multi join" and fill the data from the other table/doc
+    const order = await Orders.findById(req.params.id)
+      .populate("user", "name street")
+      .populate({ path: "orderItems", populate: { path: "product", populate: "category" } });
+    res.send(order);
   } catch (error) {
     console.log(colors.red(error));
     res.status(500).json({ success: false, message: error });

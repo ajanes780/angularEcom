@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const Category = require("../models/category");
 import { Request, Response } from "express";
 const colors = require("colors/safe");
-
+const admin = require("../helpers/admin");
 // get all products
 router.get(`/`, async (req: Request, res: Response) => {
   let filter = {};
@@ -22,7 +22,7 @@ router.get(`/`, async (req: Request, res: Response) => {
   }
 });
 
-router.get("/get/count", async (req: Request, res: Response) => {
+router.get("/get/count", admin, async (req: Request, res: Response) => {
   try {
     const productCount = await Product.countDocuments();
     res.status(201).json({ productCount, success: true });
@@ -33,7 +33,7 @@ router.get("/get/count", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/get/featured/:count", async (req: Request, res: Response) => {
+router.get("/get/featured/:count", admin, async (req: Request, res: Response) => {
   const limit: Number = Number(req.params.count) || 0;
 
   try {
@@ -63,7 +63,7 @@ router.get(`/:id`, async (req: Request, res: Response) => {
 });
 
 //  create a single product
-router.post("/", async (req: Request, res: Response) => {
+router.post("/", admin, async (req: Request, res: Response) => {
   const {
     name,
     description,
@@ -111,7 +111,7 @@ router.post("/", async (req: Request, res: Response) => {
 });
 
 // update the product
-router.put("/:id", async (req: Request, res: Response) => {
+router.put("/:id", admin, async (req: Request, res: Response) => {
   const { id } = req.params;
   if (!mongoose.isValidObjectId(id)) {
     res.status(400).send("Invalid product id");
@@ -165,7 +165,7 @@ router.put("/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.delete("/:id", async (req: Request, res: Response) => {
+router.delete("/:id", admin, async (req: Request, res: Response) => {
   const { id } = req.params;
   if (!mongoose.isValidObjectId(id)) {
     res.status(400).send("Invalid product id");

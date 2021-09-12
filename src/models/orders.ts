@@ -11,7 +11,7 @@ const ordersSchema = mongoose.Schema({
   phone: { type: String, required: true },
   status: { type: String, required: true, default: "Pending" },
   totalPrice: { type: Number, required: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "Users", required: true },
   dateOrdered: { type: Date, default: Date.now },
 });
 
