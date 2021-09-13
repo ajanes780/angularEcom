@@ -19,6 +19,22 @@ router.get(`/`, admin, async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error });
   }
 });
+
+router.get(`/get/userorders/:userid`, admin, async (req: Request, res: Response) => {
+  try {
+    //  using populate to create a "join" and fill the data from the other table/doc  also sort new to old
+    const userOrdersList = await Orders.find({ user: req.params.userid })
+      .populate("user", "name")
+      .populate({ path: "orderItems", populate: { path: "product", populate: "category" } })
+      .sort({ dateOrdered: -1 });
+
+    res.send(userOrdersList);
+  } catch (error) {
+    console.log(colors.red(error));
+    res.status(500).json({ success: false, message: error });
+  }
+});
+
 router.get(`/:id`, admin, async (req: Request, res: Response) => {
   const { id } = req.params;
   if (!mongoose.isValidObjectId(id)) {
@@ -40,7 +56,7 @@ router.get(`/get/totalsales`, admin, async (req: Request, res: Response) => {
   try {
     const totalSales = await Orders.aggregate([
       { $group: { _id: null, totalSales: { $sum: "$totalPrice" } } },
-      { $project: { totalSales: { $round: ["$totalSales", 1] } } },
+      { $project: { totalSales: { $trunc: ["$totalSales", 2] } } },
     ]);
     if (totalSales) {
       res.status(200).json({ totalSales, message: `Your total sales are ${totalSales[0].totalSales}`, success: true });
@@ -51,6 +67,17 @@ router.get(`/get/totalsales`, admin, async (req: Request, res: Response) => {
       success: false,
       error: error,
     });
+  }
+});
+
+router.get("/get/count", admin, async (req: Request, res: Response) => {
+  try {
+    const totalOrders = await Orders.countDocuments();
+    res.status(201).json({ totalOrders, success: true });
+    console.log(colors.inverse(` Drum roll please.... your have ${totalOrders} orders!!!`));
+  } catch (error) {
+    res.status(500).json({ message: "I could not get the product count", success: false, error });
+    console.log(colors.red(error));
   }
 });
 
@@ -88,7 +115,8 @@ router.post("/", async (req: Request, res: Response) => {
     })
   );
 
-  const totalPrice = calculatePrice.reduce((a, b) => a + b, 0).toFixed(2);
+  //  may add tofixed(2) here
+  const totalPrice = calculatePrice.reduce((a, b) => a + b, 0);
 
   try {
     let newOrder = new Orders({
