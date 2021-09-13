@@ -6,6 +6,10 @@ const Category = require("../models/category");
 import { Request, Response } from "express";
 const colors = require("colors/safe");
 const admin = require("../helpers/admin");
+const multer = require("multer");
+const storage = require("../helpers/imageUpload");
+const uploadOptions = multer({ storage: storage });
+
 // get all products
 router.get(`/`, async (req: Request, res: Response) => {
   let filter = {};
@@ -63,12 +67,11 @@ router.get(`/:id`, async (req: Request, res: Response) => {
 });
 
 //  create a single product
-router.post("/", admin, async (req: Request, res: Response) => {
+router.post("/", admin, uploadOptions.single("image"), async (req: any, res: Response) => {
   const {
     name,
     description,
     richDescription,
-    image,
     images,
     brand,
     price,
@@ -80,6 +83,13 @@ router.post("/", admin, async (req: Request, res: Response) => {
     dateCreated,
   } = req.body;
 
+  if (!req.file) {
+    return res.status(400).send({ message: "Please include an image" });
+  }
+
+  const filename = req.file.filename;
+  const basePath = `${req.protocol}://${req.get("host")}/public/upload/`;
+
   try {
     // validate the required fields
     const result = await Category.findById(category);
@@ -89,7 +99,7 @@ router.post("/", admin, async (req: Request, res: Response) => {
       name,
       description,
       richDescription,
-      image,
+      image: `${basePath}${filename}`,
       images,
       brand,
       price,
